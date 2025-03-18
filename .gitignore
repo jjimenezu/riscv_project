@@ -1,6 +1,5 @@
  
 openlane/
-RV32-reference-2.pdf
 *.out
 isa_decode.svg
 command.txt

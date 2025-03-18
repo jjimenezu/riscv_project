@@ -44,7 +44,7 @@ memory instr_mem (
     .clk(clk), 
     .rst(rst),  // explore about special rst for instructions
     .w_enb(),   // fixed to 0 in normal use, to 1 when bootloading
-    .r_enb(),   // fixed to 1 ¿always?
+    .r_enb(1'b1),   // fixed 1
 	.addr(PC),    // from PC or bootloader
     .w_data(32'h0000_0000),  // from bootloader: fixed to 0 in normal use
 	.r_data(instruction)   // to instruction bus  
@@ -62,6 +62,7 @@ memory data_mem (
 
 regs_file regs_file(
     .clk(clk),
+    .rst(rst),
     .w_enb(ctr_reg_w_enb),        // from Control Unit
     .rs1(instruction[19:15]),     // from instruction bus
     .rs2(instruction[24:20]),     // from instruction bus
@@ -95,7 +96,7 @@ control_unit control_unit(
 );
 
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk /*or posedge rst*/) begin
     if(rst) begin
         PC <= 0;
     end else begin

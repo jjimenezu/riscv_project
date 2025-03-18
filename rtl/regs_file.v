@@ -18,7 +18,7 @@ reg [N-1:0] registers [0:M-1];
 integer i;
 
 // Writing
-always @(posedge clk or posedge rst) begin
+always @(posedge clk /*or posedge rst*/) begin
     if (rst) begin
         for (i = 1; i < M; i = i + 1) begin
             registers[i] <= 32'h0000_0000;  

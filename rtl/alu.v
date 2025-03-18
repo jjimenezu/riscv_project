@@ -26,14 +26,15 @@ module alu (
     input  wire [3:0]  alu_op,
     input  wire [31:0] in1, in2,
     output reg  [31:0] out,
-    output reg         zero, overflow
+    output reg         zero, overflow, invalid_op
     );
 
 
 always @(*) begin
 
-    overflow = 1'b0;
-    zero     = (out==`ZERO) ? 1'b1 : 1'b0;
+    invalid_op = 1'b0;
+    overflow   = 1'b0;
+    zero       = (out==`ZERO) ? 1'b1 : 1'b0;
 
     case(alu_op)
 
@@ -57,7 +58,10 @@ always @(*) begin
 
         `AND : out =  in1 & in2;
 
-        default: out = `ZERO;
+        default: begin 
+            out = `ZERO; 
+            invalid_op = 1'b1;
+        end
 
     endcase
 

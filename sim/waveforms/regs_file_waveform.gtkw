@@ -2,10 +2,10 @@
 [*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
 [*] Fri Dec 13 04:34:47 2024
 [*]
-[dumpfile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/regs_file_tb.vcd"
+[dumpfile] "vcd/regs_file_tb.vcd"
 [dumpfile_mtime] "Fri Dec 13 04:32:46 2024"
 [dumpfile_size] 8368
-[savefile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/regs_file_waveform.gtkw"
+[savefile] "regs_file_waveform.gtkw"
 [timestart] 0
 [size] 1920 1032
 [pos] -1 -1
