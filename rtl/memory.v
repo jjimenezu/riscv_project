@@ -26,10 +26,14 @@ always @(posedge clk /*or posedge rst*/) begin
             mem[i] <= 8'h00;  
         end
     end else if (w_enb) begin
-        mem[addr[ADDR_BITS-1:4] + 2'b00] <= w_data[7 : 0];
-		mem[addr[ADDR_BITS-1:4] + 2'b01] <= w_data[15: 8];
-		mem[addr[ADDR_BITS-1:4] + 2'b10] <= w_data[23:16];
-		mem[addr[ADDR_BITS-1:4] + 2'b11] <= w_data[31:24];
+        // mem[addr[ADDR_BITS-1:4] + 2'b00] <= w_data[7 : 0];
+		// mem[addr[ADDR_BITS-1:4] + 2'b01] <= w_data[15: 8];
+		// mem[addr[ADDR_BITS-1:4] + 2'b10] <= w_data[23:16];
+		// mem[addr[ADDR_BITS-1:4] + 2'b11] <= w_data[31:24];
+		mem[addr + 2'b00] <= w_data[7 : 0];
+		mem[addr + 2'b01] <= w_data[15: 8];
+		mem[addr + 2'b10] <= w_data[23:16];
+		mem[addr + 2'b11] <= w_data[31:24];
     end
 end
 
@@ -40,10 +44,10 @@ always @(*) begin
 		// r_data[15: 8] = mem[addr[ADDR_BITS-1:4] + 2'b01];
 		// r_data[23:16] = mem[addr[ADDR_BITS-1:4] + 2'b10];
 		// r_data[31:24] = mem[addr[ADDR_BITS-1:4] + 2'b11];
-		r_data[7 : 0] = mem[addr + 0];
-		r_data[15: 8] = mem[addr + 1];
-		r_data[23:16] = mem[addr + 2];
-		r_data[31:24] = mem[addr + 3];
+		r_data[7 : 0] = mem[addr + 2'b00];
+		r_data[15: 8] = mem[addr + 2'b01];
+		r_data[23:16] = mem[addr + 2'b10];
+		r_data[31:24] = mem[addr + 2'b11];
 	end else begin
 		r_data = 32'h0000_0000;
 	end

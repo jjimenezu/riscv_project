@@ -43,7 +43,7 @@ always @(*) begin
         end
 
         `I_OP: begin
-            alu_op = {funct7,funct3};
+            alu_op      =   (funct3[1:0]==2'b01) ? {funct7,funct3} : {1'b0,funct3} ; // Considerate Shifts special case
             alu_src     =   1'b1;
             mem2reg     =   1'b0;
             reg_write   =   1'b1;

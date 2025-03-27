@@ -5,7 +5,10 @@ CORE_TB = sim/core_tb.v
 # WAVEFORMS_DIR = sim/waveforms
 
 
-core:
+core_compile:
+	iverilog -o sim/out/core.out $(RTL_FILES)
+
+core_sim:
 	iverilog -o sim/out/core.out $(CORE_TB) $(RTL_FILES)
 	vvp sim/out/core.out
 

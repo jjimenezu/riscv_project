@@ -35,7 +35,7 @@ initial begin
 
     // Load instruction memory
     $readmemh("sim/firmware.hex", mem);
-    for(i = 0; i<9; i = i+1) begin
+    for(i = 0; i<10; i = i+1) begin
         core.instr_mem.mem[i*4 + 0] =  mem[i][7:0];
         core.instr_mem.mem[i*4 + 1] =  mem[i][15:8];
         core.instr_mem.mem[i*4 + 2] =  mem[i][23:16];
@@ -104,6 +104,7 @@ initial begin
                 core.instr_mem.mem[12],
                 core.instr_mem.mem[13],
                 core.instr_mem.mem[14],
+                core.instr_mem.mem[15],
                 core.instr_mem.mem[16],
                 core.instr_mem.mem[17],
                 core.instr_mem.mem[18],
