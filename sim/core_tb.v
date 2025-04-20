@@ -7,10 +7,16 @@
 
 module core_tb();
 
+parameter integer ADDR_BITS = 10;
+parameter N = 32;  // Regs width
+parameter M = 32;   // # Regs
+
 //DUT interfae
 reg clk,rst;
 
-reg [31:0] mem [31:0];
+reg [7:0] in_instr_mem [0:2**ADDR_BITS-1];
+reg [7:0] out_data_mem [0:2**ADDR_BITS-1];
+reg [N-1:0] out_registers [0:M-1];
 
 
 reg [31:0] i;
@@ -34,15 +40,22 @@ initial begin
     rst = 0;
 
     // Load instruction memory
-    $readmemh("sim/firmware.hex", mem);
-    for(i = 0; i<10; i = i+1) begin
-        core.instr_mem.mem[i*4 + 0] =  mem[i][7:0];
-        core.instr_mem.mem[i*4 + 1] =  mem[i][15:8];
-        core.instr_mem.mem[i*4 + 2] =  mem[i][23:16];
-        core.instr_mem.mem[i*4 + 3] =  mem[i][31:24];
+    $readmemh("sim/test0.mem", in_instr_mem);
+    for(i = 0; i<2**ADDR_BITS-1; i = i+1) begin
+        core.instr_mem.mem[i] =  in_instr_mem[i];
     end
 
-    #1000;
+    // $readmemh("sim/firmware.hex", mem);
+    // for(i = 0; i<10; i = i+1) begin
+    //     core.instr_mem.mem[i*4 + 0] =  mem[i][7:0];
+    //     core.instr_mem.mem[i*4 + 1] =  mem[i][15:8];
+    //     core.instr_mem.mem[i*4 + 2] =  mem[i][23:16];
+    //     core.instr_mem.mem[i*4 + 3] =  mem[i][31:24];
+    // end
+
+    #50000;
+
+
 
     $finish();
 
@@ -157,12 +170,18 @@ initial begin
                 );
 end
 
+
+
+endmodule
+
+
+
+
+
+
 // generate
 //     genvar i;
 //     for (i = 0; i < 32; i = i + 1) begin
 //         initial  $dumpvars(0, core.regs_file.registers[i]);
 //     end
 // endgenerate
-
-endmodule
-

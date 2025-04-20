@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
-[*] Thu Mar 27 02:48:39 2025
+[*] Thu Apr 17 08:34:21 2025
 [*]
 [dumpfile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/vcd/core_tb.vcd"
-[dumpfile_mtime] "Thu Mar 27 02:38:00 2025"
-[dumpfile_size] 23599
+[dumpfile_mtime] "Thu Apr 17 08:31:06 2025"
+[dumpfile_size] 260349
 [savefile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/core_tb.gtkw"
 [timestart] 0
 [size] 1920 1009
-[pos] 0 11
-*-6.000000 260 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -274 129
+*-6.000000 2182 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] core_tb.
 [treeopen] core_tb.core.
 [sst_width] 209
@@ -31,14 +31,16 @@ core_tb.core.instruction[31:0]
 @28
 core_tb.core.opcode[6:0]
 @22
-core_tb.core.imm[11:0]
-core_tb.core.imm_ext[31:0]
 core_tb.core.reg_r_data1[31:0]
 core_tb.core.reg_r_data2[31:0]
 @28
 core_tb.core.unknown_op
 @200
 -
+-
+@29
+core_tb.core.control_unit.branch_select_no_zero
+@200
 -
 -regs_file
 @22
@@ -64,6 +66,7 @@ core_tb.core.alu.out[31:0]
 @28
 core_tb.core.alu.overflow
 core_tb.core.alu.zero
+core_tb.core.alu.no_zero
 core_tb.core.alu.invalid_op
 @200
 -
@@ -71,8 +74,8 @@ core_tb.core.alu.invalid_op
 -regs_file
 @22
 core_tb.core.regs_file.\registers[0][31:0]
+@24
 core_tb.core.regs_file.\registers[1][31:0]
-@23
 core_tb.core.regs_file.\registers[2][31:0]
 @22
 core_tb.core.regs_file.\registers[3][31:0]

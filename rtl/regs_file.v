@@ -30,9 +30,9 @@ end
 
 // Reading
 always @(*) begin
-    registers[0] = 32'h0000_0000;
-    r_data1 = registers[rs1];
-    r_data2 = registers[rs2];
+    // registers[0] = 32'h0000_0000;
+    r_data1 = (rs1 == 5'd0) ? 32'h00000000 : registers[rs1];
+    r_data2 = (rs2 == 5'd0) ? 32'h00000000 : registers[rs2];
 end
 
 endmodule
