@@ -4,3 +4,9 @@ isa_decode.svg
 command.txt
 *.vcd
 sim/notas_firmware
+*.bin
+*.elf
+*.o
+*disassembly.txt
+sim/waveforms/save0_core_tb.gtkw
+yosys/
