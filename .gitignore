@@ -10,3 +10,6 @@ sim/notas_firmware
 *disassembly.txt
 sim/waveforms/save0_core_tb.gtkw
 yosys/
+legacy/
+*.mem
+!sim/rom.mem

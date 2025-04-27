@@ -1,164 +1,84 @@
 [*]
 [*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
-[*] Thu Apr 17 08:34:21 2025
+[*] Sun Apr 27 08:45:31 2025
 [*]
 [dumpfile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/vcd/core_tb.vcd"
-[dumpfile_mtime] "Thu Apr 17 08:31:06 2025"
-[dumpfile_size] 260349
+[dumpfile_mtime] "Sun Apr 27 08:45:14 2025"
+[dumpfile_size] 950023
 [savefile] "/home/ejjimenezu/Repos/riscv_project/sim/waveforms/core_tb.gtkw"
 [timestart] 0
-[size] 1920 1009
-[pos] -274 129
-*-6.000000 2182 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[size] 1920 1032
+[pos] 1920 0
+*-6.000000 47 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] core_tb.
 [treeopen] core_tb.core.
 [sst_width] 209
-[signals_width] 256
+[signals_width] 290
 [sst_expanded] 1
-[sst_vpaned_height] 297
+[sst_vpaned_height] 306
 @200
 -tb
--
--core
 @28
 core_tb.core.clk
 core_tb.core.rst
 @200
 -
+-CORE
 @22
 core_tb.core.PC[31:0]
 core_tb.core.instruction[31:0]
+core_tb.core.regs_r_data1[31:0]
+core_tb.core.regs_r_data2[31:0]
+core_tb.core.alu_out[31:0]
 @28
-core_tb.core.opcode[6:0]
+core_tb.core.alu_zero
 @22
-core_tb.core.reg_r_data1[31:0]
-core_tb.core.reg_r_data2[31:0]
+core_tb.core.mem_out[31:0]
+core_tb.core.mem_out_maskered[31:0]
+@200
+-muxes
+@22
+core_tb.core.next_PC[31:0]
+core_tb.core.alu_in1[31:0]
+core_tb.core.alu_in2[31:0]
+core_tb.core.regs_w_data[31:0]
 @28
-core_tb.core.unknown_op
+core_tb.core.branch_zero
+@200
+-datapaht control
+@28
+core_tb.core.ctrl_alu_op[3:0]
+core_tb.core.ctrl_alu_in1
+core_tb.core.ctrl_alu_in2
+core_tb.core.ctrl_regs_w_data[1:0]
+core_tb.core.ctrl_regs_w_enb
+core_tb.core.ctrl_imm_op[2:0]
+@22
+core_tb.core.ctrl_mem_r_enb[3:0]
+core_tb.core.ctrl_mem_w_enb[3:0]
+@28
+core_tb.core.ctrl_branch
+core_tb.core.ctrl_branch_zero
+core_tb.core.ctrl_jump
+@200
+-debug
+@28
+core_tb.core.invalid_op
+core_tb.core.alu_invalid_op
+core_tb.core.alu_overflow
 @200
 -
--
+-CONTROL UNIT
+@28
+core_tb.core.control_unit.opcode[6:0]
+core_tb.core.control_unit.funct3[2:0]
 @29
-core_tb.core.control_unit.branch_select_no_zero
-@200
--
--regs_file
-@22
-core_tb.core.regs_file.rs1[4:0]
-core_tb.core.regs_file.rs2[4:0]
-core_tb.core.regs_file.rd[4:0]
+core_tb.core.control_unit.funct7
 @28
-core_tb.core.regs_file.w_enb
-@22
-core_tb.core.regs_file.w_data[31:0]
-core_tb.core.regs_file.r_data1[31:0]
-core_tb.core.regs_file.r_data2[31:0]
+core_tb.core.control_unit.alu_in1
+core_tb.core.control_unit.alu_in2
 @200
 -
 -
--alu
-@28
-core_tb.core.alu.alu_op[3:0]
-@22
-core_tb.core.alu.in1[31:0]
-core_tb.core.alu.in2[31:0]
-core_tb.core.alu.out[31:0]
-@28
-core_tb.core.alu.overflow
-core_tb.core.alu.zero
-core_tb.core.alu.no_zero
-core_tb.core.alu.invalid_op
-@200
--
--REGS_MEMORY_MONITOR
--regs_file
-@22
-core_tb.core.regs_file.\registers[0][31:0]
-@24
-core_tb.core.regs_file.\registers[1][31:0]
-core_tb.core.regs_file.\registers[2][31:0]
-@22
-core_tb.core.regs_file.\registers[3][31:0]
-core_tb.core.regs_file.\registers[4][31:0]
-core_tb.core.regs_file.\registers[5][31:0]
-core_tb.core.regs_file.\registers[6][31:0]
-core_tb.core.regs_file.\registers[7][31:0]
-core_tb.core.regs_file.\registers[8][31:0]
-core_tb.core.regs_file.\registers[9][31:0]
-core_tb.core.regs_file.\registers[10][31:0]
-core_tb.core.regs_file.\registers[11][31:0]
-core_tb.core.regs_file.\registers[12][31:0]
-core_tb.core.regs_file.\registers[13][31:0]
-core_tb.core.regs_file.\registers[14][31:0]
-core_tb.core.regs_file.\registers[15][31:0]
-core_tb.core.regs_file.\registers[16][31:0]
-core_tb.core.regs_file.\registers[17][31:0]
-core_tb.core.regs_file.\registers[18][31:0]
-core_tb.core.regs_file.\registers[19][31:0]
-core_tb.core.regs_file.\registers[20][31:0]
-core_tb.core.regs_file.\registers[21][31:0]
-core_tb.core.regs_file.\registers[22][31:0]
-core_tb.core.regs_file.\registers[23][31:0]
-core_tb.core.regs_file.\registers[24][31:0]
-core_tb.core.regs_file.\registers[25][31:0]
-core_tb.core.regs_file.\registers[26][31:0]
-core_tb.core.regs_file.\registers[27][31:0]
-core_tb.core.regs_file.\registers[28][31:0]
-core_tb.core.regs_file.\registers[29][31:0]
-core_tb.core.regs_file.\registers[30][31:0]
-core_tb.core.regs_file.\registers[31][31:0]
-@200
--
--
--instr_mem
-@22
-core_tb.core.instr_mem.\mem[0][7:0]
-core_tb.core.instr_mem.\mem[1][7:0]
-core_tb.core.instr_mem.\mem[2][7:0]
-core_tb.core.instr_mem.\mem[3][7:0]
-@200
--
-@22
-core_tb.core.instr_mem.\mem[4][7:0]
-core_tb.core.instr_mem.\mem[5][7:0]
-core_tb.core.instr_mem.\mem[6][7:0]
-core_tb.core.instr_mem.\mem[7][7:0]
-@200
--
-@22
-core_tb.core.instr_mem.\mem[8][7:0]
-core_tb.core.instr_mem.\mem[9][7:0]
-core_tb.core.instr_mem.\mem[10][7:0]
-core_tb.core.instr_mem.\mem[11][7:0]
-@200
--
-@22
-core_tb.core.instr_mem.\mem[12][7:0]
-core_tb.core.instr_mem.\mem[13][7:0]
-core_tb.core.instr_mem.\mem[14][7:0]
-core_tb.core.instr_mem.\mem[15][7:0]
-@200
--
--data_mem
-@22
-core_tb.core.data_mem.\mem[0][7:0]
-core_tb.core.data_mem.\mem[1][7:0]
-core_tb.core.data_mem.\mem[2][7:0]
-core_tb.core.data_mem.\mem[3][7:0]
-@200
--
-@22
-core_tb.core.data_mem.\mem[4][7:0]
-core_tb.core.data_mem.\mem[5][7:0]
-core_tb.core.data_mem.\mem[6][7:0]
-core_tb.core.data_mem.\mem[7][7:0]
-@200
--
-@22
-core_tb.core.data_mem.\mem[8][7:0]
-core_tb.core.data_mem.\mem[9][7:0]
-core_tb.core.data_mem.\mem[10][7:0]
-core_tb.core.data_mem.\mem[11][7:0]
-core_tb.core.data_mem.\mem[12][7:0]
 [pattern_trace] 1
 [pattern_trace] 0

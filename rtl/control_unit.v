@@ -19,159 +19,137 @@
 // 
 
 module control_unit(
-    input wire [6:0] opcode,
-    input wire [2:0] funct3,
-    input wire       funct7,
-    output reg [3:0] alu_op,
-    output reg alu_src2,
-    output reg alu_src1,
-    output reg branch_select_no_zero,
-    output reg [2:0] writeback_mux, 
-    output reg reg_write, 
-    output reg [3:0] mem_read,
-    output reg [3:0] mem_write,
-    output reg branch,
-    output reg [1:0] jump,
-    output reg unknown_op
+    input wire  [6:0]   opcode,
+    input wire  [2:0]   funct3,
+    input wire          funct7,
+    //
+    output reg  [3:0]   alu_op,
+    output reg          alu_in2,
+    output reg          alu_in1,
+    output reg  [1:0]   regs_w_data, 
+    output reg          regs_w_enb,
+    output reg          regs_r_enb, 
+    output reg  [2:0]   imm_op,
+    output reg  [3:0]   mem_w_enb,
+    output reg  [3:0]   mem_r_enb,
+    output reg          branch,
+    output reg          branch_zero,
+    output reg          jump,
+    output reg          invalid_op
     );
-
 
 
 always @(*) begin
 
-    unknown_op   =   1'b0;
-    branch_select_no_zero =   1'b0;
-    alu_src1     =   1'b0;
-    jump = 2'b00;
+// Default values
+alu_op       = `ADD;
+alu_in2     = 1'b0;
+alu_in1     = 1'b0;
+regs_w_data  = 2'b00;
+regs_w_enb   = 1'b0; 
+imm_op       = 3'h0;
+mem_r_enb    = 4'h0;
+mem_w_enb    = 4'h0;
+branch       = 1'b0;
+jump         = 1'b0;
+branch_zero  = 1'b0;
+regs_r_enb   = 1'b0;
+invalid_op   = 1'b0;
 
+// In any instruction case
     case (opcode)
 
         `R_OP: begin
-            alu_op = {funct7,funct3};
-            alu_src2     =   1'b0;
-            writeback_mux     =   3'b000;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
+            regs_r_enb   = 1'b1;
+            alu_op      =  {funct7,funct3};
+            regs_w_enb  =  1'b1;
         end
 
         `I_OP: begin
-            alu_op      =   (funct3[1:0]==2'b01) ? {funct7,funct3} : {1'b0,funct3} ; // Considerate Shifts special case
-            alu_src2     =   1'b1;
-            writeback_mux     =   3'b000;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-        end
+            regs_r_enb   = 1'b1;
+            imm_op    = 3'h1; // I-type
+            alu_in2   =   1'b1;
+            alu_op     =  (funct3[1:0]==2'b01)  ?  {funct7,funct3} // Considerate Shifts special case
+                                                :  {1'b0,funct3} ; 
+            regs_w_enb  =  1'b1;
+        end 
 
         `L_OP: begin
-            alu_op      =   4'h0; // add to calc efective address
-            alu_src2     =   1'b1;
-            writeback_mux     =   3'b001;
-            reg_write   =   1'b1;
-            mem_read    =   funct3[1] ? 4'b1111 : // word case
-                            funct3[0] ? 4'b0011 : // half case 
-                                        4'b0001 ; // byte case
-            mem_write   =   4'h0;
-            branch      =   1'b0;
+            regs_r_enb   = 1'b1;
+            imm_op    = 3'h1; // I-type
+            alu_in2   =  1'b1;
+            mem_r_enb    =   funct3[1] ? 4'b1111 : // word case
+                             funct3[0] ? 4'b0011 : // half case 
+                                         4'b0001 ; // byte case
+            regs_w_data  = 2'b01;  // data from mem
+            regs_w_enb  =  1'b1;
         end
 
         `S_OP: begin
-            alu_op      =   4'h0; // add to calc efective address
-            alu_src2     =   1'b1;
-            writeback_mux     =   3'b000; // X
-            reg_write   =   1'b0;
-            mem_read    =   4'h0;
-            mem_write   =   funct3[1] ? 4'b1111 : // word case
+            regs_r_enb   = 1'b1;
+            imm_op    = 3'h2; // S-type
+            alu_in2   =  1'b1;
+            mem_w_enb   =   funct3[1] ? 4'b1111 : // word case
                             funct3[0] ? 4'b0011 : // half case 
                                         4'b0001 ; // byte case
-            branch      =   1'b0;
         end
 
         `B_OP: begin
+            regs_r_enb   = 1'b1;
+            imm_op    = 3'h3; // B-type
             alu_op      =   funct3[1] ? `SLTU :
-                            funct3[2] ? `SLT  : `XOR;
-            alu_src2     =   1'b0;  
-            writeback_mux     =   3'b000; // X
-            reg_write   =   1'b0;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b1;
-            branch_select_no_zero =  (funct3==3'b001) ? 1'b1 :
+                            funct3[2] ? `SLT  :
+                                        `XOR  ;
+            branch_zero =   (funct3==3'b001) ? 1'b1 :
                             (funct3==3'b100) ? 1'b1 :
-                            (funct3==3'b110) ? 1'b1 : 1'b0;
-            // if ((funct3==3'b001)||(funct3==3'b100)||(funct3==3'b110))
-            //     branch_select_no_zero = 1'b1;
-            // else
-            //     branch_select_no_zero = 1'b0;
+                            (funct3==3'b110) ? 1'b1 : 
+                                               1'b0 ;
+            branch      =   1'b1;
         end
             
         `J_OP: begin
-            alu_op      =   4'h0;  //X
-            alu_src2    =   1'b0; //X
-            writeback_mux     =   3'b100;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-
-            jump        =   2'b01;
+            alu_in1   =   1'b1;   // data fromm PC
+            alu_in2   =   1'b1;   // data from immediate
+            regs_w_enb  =   1'b1;
+            regs_w_data =   2'b10;  // data from PC+4
+            imm_op    = 3'h5; // J-type
+            jump        =   1'b1;
         end
 
         `JR_OP: begin
-            alu_op      =   4'h0;  //add
-            alu_src2    =   1'b1; //imm
-            writeback_mux     =   3'b100;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-
-            jump        =   2'b01;
+            regs_r_enb   = 1'b1;
+            imm_op    = 3'h1; // I-type
+            alu_in2   =   1'b1;   // data from immediate
+            regs_w_enb  =   1'b1;
+            regs_w_data =   2'b10;  // data from PC+4
+            jump        =   1'b1;
         end
 
         `LUI_OP: begin
-            alu_op      =   4'h0; //X
-            alu_src2    =   1'b1; //X
-            writeback_mux     =   3'b010;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-
-            alu_src1    =   1'b0; //X
+            regs_w_enb  =   1'b1;
+            regs_w_data =   2'b11;  // data from immediate
+            imm_op    = 3'h4; // U-type
         end
 
         `AUIPC_OP: begin
-            alu_op      =   4'h0;
-            alu_src2    =   1'b1;
-            writeback_mux     =   3'b000;
-            reg_write   =   1'b1;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-
-            alu_src1    =   1'b1;
+            alu_in1   =   1'b1;   // data fromm PC
+            alu_in2   =   1'b1;   // data from immediate
+            regs_w_enb =   1'b1;
+            imm_op    = 3'h4; // U-type
         end
 
         default: begin
-            alu_op      =   4'h0;
-            alu_src2    =   1'b0;
-            writeback_mux     =   3'b000;
-            reg_write   =   1'b0;
-            mem_read    =   4'h0;
-            mem_write   =   4'h0;
-            branch      =   1'b0;
-            unknown_op  =   1'b1;
+            invalid_op = 1'b1;
         end
 
     endcase
 
 end
 
-
-
-
 endmodule
+
+
+
+
+
+

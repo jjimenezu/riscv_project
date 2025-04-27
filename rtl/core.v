@@ -13,104 +13,133 @@
 module core #(
 	parameter integer ADDR_BITS = 10
 )(
-    input wire clk, rst
+    input wire clk, 
+    input wire rst
 );
 
-// Internal conections
+
+////____ Program Counter Register ____////
+reg [31:0] PC;
+
+
+////____ Internal Connections Wires ____////
 wire [31:0] instruction;
-// wire [31:0] imm_ext;
-reg [31:0] imm; // reg  [11:0] imm;
-wire [31:0] reg_r_data1;
-wire [31:0] reg_r_data2;
+wire [31:0] imm;
+wire [31:0] regs_r_data1;
+wire [31:0] regs_r_data2;
 wire [31:0] alu_out;
 wire [31:0] mem_out;
-wire [3 :0] ctr_alu_op;
-wire ctr_alu_in2_mux;
-wire ctr_alu_in1_mux;
-wire ctr_branch_select_no_zero;
-wire [2:0] ctr_writeback_mux; //000: ALU    001: Mem    010: Imm     100: PC+4 
-wire ctr_reg_w_enb;
-wire [3:0] ctr_mem_w_enb;
-wire [3:0] ctr_mem_r_enb;
-wire ctr_branch_mux;
-wire [1:0] ctr_jump;
-wire unknown_op;
-wire alu_zero;
-wire alu_no_zero;
-wire alu_overflow;            
-
-// Program Counter: pointer to current instruction memory address
-reg [31:0] PC; 
-wire [31:0] PC_plus4;
+wire [31:0] mem_out_maskered;
+wire [31:0] PC_plus_4;
+wire [31:0] PC_plus_imm;
+// Mux Outputs
+wire [31:0] regs_w_data;
+wire [31:0] alu_in1;
+wire [31:0] alu_in2;
+wire        branch_zero;
 wire [31:0] next_PC;
-wire branch_alu_zero;
+// Datapath Control Unit Signals
+wire [3:0] ctrl_alu_op;
+wire       ctrl_alu_in1;
+wire       ctrl_alu_in2;
+wire [1:0] ctrl_regs_w_data;
+wire       ctrl_regs_w_enb;
+wire       ctrl_regs_r_enb;
+wire [2:0] ctrl_imm_op;
+wire [3:0] ctrl_mem_r_enb;
+wire [3:0] ctrl_mem_w_enb;
+wire       ctrl_branch;
+wire       ctrl_branch_zero;
+wire       ctrl_jump;
+// Debug Signals
+wire        alu_overflow;
+wire        alu_invalid_op;
+wire        invalid_op;
+// TO DO: add debug signals for misaligned addresses
 
-//
-wire [6:0] opcode = instruction[6:0];
+////____ Internal Modules Connection ____////
 
-// 
-memory instr_mem (
+memory rom (
+    //inputs
     .clk(clk), 
-    .rst(rst),              // explore about special rst for instructions
-    .w_enb(4'b0000),               // fixed to 0 in normal use, to 1 when bootloading
-    .r_enb(4'b1111),           // fixed 1
-	.addr(PC),              // from PC or bootloader
-    // .w_data(32'h0000_0000),      // from bootloader: fixed to 0 in normal use
-	.r_data(instruction)    // to instruction bus  
+    .rst(rst),             
+    .w_enb(4'h0),            
+    .r_enb(1'b1),            
+	.addr(PC),              
+    .w_data(32'h0000_0000),    
+	.r_data(instruction)
 );
 
-memory data_mem (
+memory ram (
+    //inputs
     .clk(clk), 
     .rst(rst), 
-    .w_enb(ctr_mem_w_enb),  // from Control Unit
-    .r_enb(ctr_mem_r_enb),  // from Control Unit
-	.addr(alu_out),         // from ALU
-    .w_data(reg_r_data2),        // from regs_file r_data2 
-	.r_data(mem_out)        // to   writeback MUX
+    .w_enb(ctrl_mem_w_enb),  
+    .r_enb(ctrl_mem_r_enb[0]), 
+	.addr(alu_out),        
+    .w_data(regs_r_data2), 
+    //outputs
+	.r_data(mem_out)
 );
+// TO DO: memories bootloader system 
 
 regs_file regs_file(
+    //inputs
     .clk(clk),
     .rst(rst),
-    .w_enb(ctr_reg_w_enb),      // from Control Unit
-    .rs1(instruction[19:15]),   // from instruction bus
-    .rs2(instruction[24:20]),   // from instruction bus
-    .rd (instruction[11: 7]),   // from instruction bus
-    .w_data(ctr_writeback_mux[2] ? PC_plus4 : ctr_writeback_mux[1] ?  imm : ctr_writeback_mux[0] ? mem_out : alu_out ),  // from writeback MUX
-    .r_data1(reg_r_data1),           // to ALU in1
-    .r_data2(reg_r_data2)            // to ALU in2 MUX and data_mem w_data 
+    .w_enb(ctrl_regs_w_enb),     
+    .r_enb(ctrl_regs_r_enb),      
+    .rs1(instruction[19:15]),  
+    .rs2(instruction[24:20]), 
+    .rd (instruction[11: 7]),  
+    .w_data(regs_w_data),  //from mux
+    //outputs
+    .r_data1(regs_r_data1),
+    .r_data2(regs_r_data2)
 );
 
 alu alu(
-    .alu_op(ctr_alu_op),
-    .in1(ctr_alu_in1_mux ? PC  : reg_r_data1),               // from ALU r_data1
-    .in2(ctr_alu_in2_mux ? imm : reg_r_data2 ),     // from ALU in2 MUX
-    .out(alu_out),              // to data_mem address and writeback MUX
-    .zero(alu_zero),            // to PC_source MUX control
-    .no_zero(alu_no_zero), //  to PC_source MUX control
+    //inputs
+    .alu_op(ctrl_alu_op),
+    .in1(alu_in1),             // from mux
+    .in2(alu_in2),             // from mux
+    //outputs
+    .out(alu_out),             
+    .zero(alu_zero),       
+    .invalid_op(alu_invalid_op),     
     .overflow(alu_overflow)     // overflow is ignored in the ISA but I want monitor it
 );
 
 control_unit control_unit(
-    .opcode(opcode),
+    //inputs
+    .opcode(instruction[6:0]),
     .funct3(instruction[14:12]),  
-    .funct7(instruction[30]),
-    .alu_op(ctr_alu_op),
-    .alu_src2(ctr_alu_in2_mux),
-    .alu_src1(ctr_alu_in1_mux),
-    .branch_select_no_zero(ctr_branch_select_no_zero),
-    .writeback_mux(ctr_writeback_mux), 
-    .reg_write(ctr_reg_w_enb), 
-    .mem_read(ctr_mem_r_enb),
-    .mem_write(ctr_mem_w_enb),
-    .branch(ctr_branch_mux),
-    .jump(ctr_jump),
-    .unknown_op(unknown_op)
+    .funct7(instruction[30]),    // only important bit
+    //outputs
+    .alu_op(ctrl_alu_op),
+    .alu_in1(ctrl_alu_in1),
+    .alu_in2(ctrl_alu_in2),
+    .regs_w_data(ctrl_regs_w_data),
+    .regs_w_enb(ctrl_regs_w_enb), 
+    .regs_r_enb(ctrl_regs_r_enb),
+    .imm_op(ctrl_imm_op),
+    .mem_w_enb(ctrl_mem_w_enb),
+    .mem_r_enb(ctrl_mem_r_enb),
+    .branch(ctrl_branch),
+    .branch_zero(ctrl_branch_zero),
+    .jump(ctrl_jump),
+    .invalid_op(invalid_op)
+);
+
+imm_gen imm_gen(
+    .instr(instruction[31:7]),
+    .imm_op(ctrl_imm_op),
+    .imm(imm)
 );
 
 
-// PC sequential logic //
-always @(posedge clk /*or posedge rst*/) begin
+////____ PC Logic (Sequential) ____////
+always @(posedge clk) begin
     if(rst) begin
         PC <= 0;
     end else begin
@@ -118,43 +147,30 @@ always @(posedge clk /*or posedge rst*/) begin
     end
 end
 
+////____ Internal Connections Assignment (Combinational) ____////
+assign PC_plus_4 = PC + 32'h0000_0004;
 
-// Immediates decode //
-always @(*) begin
-    case (opcode)
-        `I_OP: imm = {{20{instruction[31]}},instruction[31:20]};
-        `L_OP: imm = {{20{instruction[31]}},instruction[31:20]};
-        `S_OP: imm = {{20{instruction[31]}},instruction[31:25],instruction[11:7]};
-        `B_OP: imm = {{19{instruction[31]}},instruction[31],instruction[7],instruction[30:25],instruction[11:8], 1'b0};
-        `AUIPC_OP: imm = {instruction[31:12],{12{1'b0}}};
-        `LUI_OP:   imm = {instruction[31:12],{12{1'b0}}};
-        `J_OP:     imm = {{11{instruction[31]}},instruction[31],instruction[19:12],instruction[20],instruction[30:21], 1'b0};
-        `JR_OP:    imm = {{20{instruction[31]}},instruction[31:20]};
-        default: imm = {32{1'b0}};
-    endcase 
-end
+assign PC_plus_imm = PC + imm;
 
+assign mem_out_maskered = mem_out & {{8{ctrl_mem_r_enb[3]}} , {8{ctrl_mem_r_enb[2]}} , {8{ctrl_mem_r_enb[1]}}, {8{ctrl_mem_r_enb[0]}}};
 
-//
+// Muxes Output Logic
+assign regs_w_data = (ctrl_regs_w_data==2'b00) ? alu_out :
+                     (ctrl_regs_w_data==2'b01) ? mem_out_maskered:
+                     (ctrl_regs_w_data==2'b10) ? PC_plus_4:
+                                                 imm; 
+
+assign alu_in1 = ctrl_alu_in1 ?         PC :
+                                regs_r_data1;
 
 
-// Next PC logic    
-assign branch_alu_zero = ctr_branch_select_no_zero ? alu_no_zero : alu_zero;                                        
-assign next_PC = ctr_jump[1] ? alu_out : ((ctr_branch_mux&branch_alu_zero)|ctr_jump[0]) ? PC+imm : PC_plus4 ;
-assign PC_plus4 = PC+4;
+assign alu_in2 = ctrl_alu_in2 ?         imm :
+                                regs_r_data2;
 
+assign branch_zero = ctrl_branch_zero ? ~alu_zero :
+                                        alu_zero;
 
-// Immediate value sign extend
-// assign imm_ext = (imm[11]) ? {{20{1'b1}},imm} : {{20{1'b0}},imm};
-
-
-
+assign next_PC = ((branch_zero&&ctrl_branch)||ctrl_jump) ? PC_plus_imm :
+                                                           PC_plus_4;
 
 endmodule
-
-
-// diferenciar imm de load, store e inmediates
-
-// Para branch:
-//      Manejar op de alu segun el funt3 de la instruccion (Alu control en diarama de paterson enesy)
-//      Manejar mux (And en diarama patersonvenesy)

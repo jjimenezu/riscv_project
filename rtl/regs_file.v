@@ -6,7 +6,7 @@ module regs_file#(
     parameter N = 32,  // Regs width
     parameter M = 32   // # Regs
 )(
-    input wire clk, rst, w_enb,
+    input wire clk, rst, w_enb, r_enb,
     input wire [4:0]  rs1, rs2, rd,
     input wire [31:0] w_data,
     output reg [31:0] r_data1, r_data2
@@ -30,9 +30,9 @@ end
 
 // Reading
 always @(*) begin
-    // registers[0] = 32'h0000_0000;
-    r_data1 = (rs1 == 5'd0) ? 32'h00000000 : registers[rs1];
-    r_data2 = (rs2 == 5'd0) ? 32'h00000000 : registers[rs2];
+    registers[0] = 32'h0000_0000;
+    r_data1 = ((rs1!=5'd0) && r_enb) ?  registers[rs1] : 32'h0000_0000;
+    r_data2 = ((rs2!=5'd0) && r_enb) ?  registers[rs2] : 32'h0000_0000;
 end
 
 endmodule

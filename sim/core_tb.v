@@ -4,6 +4,8 @@
 // `include "../rtl/regs_file.v"
 // `include "../rtl/memory.v"
 
+`define  ROM_SIZE  1024
+`define  RAM_SIZE  1024
 
 module core_tb();
 
@@ -14,12 +16,14 @@ parameter M = 32;   // # Regs
 //DUT interfae
 reg clk,rst;
 
-reg [7:0] in_instr_mem [0:2**ADDR_BITS-1];
+reg [7:0] in_rom [0:2**ADDR_BITS-1];
 reg [7:0] out_data_mem [0:2**ADDR_BITS-1];
 reg [N-1:0] out_registers [0:M-1];
 
 
 reg [31:0] i;
+integer regs_file;
+integer ram_file;
 
 initial while(1) #10 clk = !clk;
 
@@ -36,26 +40,36 @@ initial begin
     rst = 0;
     #50;
     rst = 1;
-    #10;
+    #22;
     rst = 0;
 
     // Load instruction memory
-    $readmemh("sim/test0.mem", in_instr_mem);
-    for(i = 0; i<2**ADDR_BITS-1; i = i+1) begin
-        core.instr_mem.mem[i] =  in_instr_mem[i];
+    $readmemh("sim/rom.mem", in_rom);
+    for(i = 0; i<`ROM_SIZE; i = i+1) begin
+        core.rom.mem[i] =  in_rom[i];
     end
 
-    // $readmemh("sim/firmware.hex", mem);
-    // for(i = 0; i<10; i = i+1) begin
-    //     core.instr_mem.mem[i*4 + 0] =  mem[i][7:0];
-    //     core.instr_mem.mem[i*4 + 1] =  mem[i][15:8];
-    //     core.instr_mem.mem[i*4 + 2] =  mem[i][23:16];
-    //     core.instr_mem.mem[i*4 + 3] =  mem[i][31:24];
-    // end
-
+    // Execution
     #50000;
 
+    // Save Regs File state
+    regs_file = $fopen("sim/out_regs_file.mem", "w");
+    for (i = 0; i < 32; i = i+1) begin
+        $fwrite(regs_file, "x%d = %h\n", i[4:0], core.regs_file.registers[i]);
+    end
+    $fclose(regs_file);
 
+    // Save RAM state
+    ram_file = $fopen("sim/out_ram.mem", "w");
+    $fwrite(ram_file, "\t\t\t+0\t+1\t+2\t+3",);
+    for (i = 0; i < `RAM_SIZE; i = i+4) begin
+        $fwrite(ram_file, "\n%h\t", {i[31:2],2'b00});
+        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b00]);
+        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b01]);
+        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b10]);
+        $fwrite(ram_file, "%h",  core.ram.mem[i+2'b11]);
+    end
+    $fclose(ram_file);
 
     $finish();
 
@@ -64,9 +78,16 @@ end
 // Generate waveform
 initial begin
     $dumpfile("sim/waveforms/vcd/core_tb.vcd");
-    // $dumpfile("waveforms/vcd/core_tb.vcd");
-    $dumpvars(0, core_tb,
-                
+    $dumpvars(0, core_tb);
+end
+
+
+
+endmodule
+
+
+
+/*
                 // Register File
                 core.regs_file.registers[0],
                 core.regs_file.registers[1],
@@ -168,15 +189,7 @@ initial begin
                 core.data_mem.mem[30],
                 core.data_mem.mem[31]
                 );
-end
-
-
-
-endmodule
-
-
-
-
+                */
 
 
 // generate

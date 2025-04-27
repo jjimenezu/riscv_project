@@ -24,10 +24,12 @@ module alu (
         inout vssd1,
     `endif
     input  wire [3:0]  alu_op,
-    input  wire [31:0] in1, in2,
-    // input  wire        neg_zero,
+    input  wire [31:0] in1,
+    input  wire [31:0] in2,
     output reg  [31:0] out,
-    output reg         zero, no_zero, overflow, invalid_op
+    output reg         zero, 
+    output reg         invalid_op, 
+    output reg         overflow
     );
 
 
@@ -35,12 +37,6 @@ always @(*) begin
 
     invalid_op = 1'b0;
     overflow   = 1'b0;
-    
-
-    // if(neg_zero)
-    // zero   = (out==`ZERO) ? 1'b0 : 1'b1;
-    // else 
-        // zero   = (out==`ZERO) ? 1'b1 : 1'b0;
 
     case(alu_op)
 
@@ -72,8 +68,6 @@ always @(*) begin
     endcase
 
     zero       = (out==`ZERO) ? 1'b1 : 1'b0;
-    no_zero    = ~zero;
-
 end
 
 endmodule
