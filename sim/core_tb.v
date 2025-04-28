@@ -50,26 +50,32 @@ initial begin
     end
 
     // Execution
-    #50000;
+    #5000;
 
     // Save Regs File state
-    regs_file = $fopen("sim/out_regs_file.mem", "w");
+    regs_file = $fopen("sim/results/regs_file.mem", "w");
     for (i = 0; i < 32; i = i+1) begin
         $fwrite(regs_file, "x%d = %h\n", i[4:0], core.regs_file.registers[i]);
     end
     $fclose(regs_file);
 
     // Save RAM state
-    ram_file = $fopen("sim/out_ram.mem", "w");
-    $fwrite(ram_file, "\t\t\t+0\t+1\t+2\t+3",);
-    for (i = 0; i < `RAM_SIZE; i = i+4) begin
-        $fwrite(ram_file, "\n%h\t", {i[31:2],2'b00});
-        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b00]);
-        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b01]);
-        $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b10]);
-        $fwrite(ram_file, "%h",  core.ram.mem[i+2'b11]);
+    ram_file = $fopen("sim/results/ram.mem", "w");
+    for (i = 0; i < `RAM_SIZE; i = i+1) begin
+        $fwrite(ram_file, "%h\n",  core.ram.mem[i+2'b00]);
     end
     $fclose(ram_file);
+
+    // ram_file = $fopen("sim/out_ram.mem", "w");
+    // $fwrite(ram_file, "\t\t\t+0\t+1\t+2\t+3",);
+    // for (i = 0; i < `RAM_SIZE; i = i+4) begin
+    //     $fwrite(ram_file, "\n%h\t", {i[31:2],2'b00});
+    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b00]);
+    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b01]);
+    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b10]);
+    //     $fwrite(ram_file, "%h",  core.ram.mem[i+2'b11]);
+    // end
+    // $fclose(ram_file);
 
     $finish();
 
@@ -77,7 +83,7 @@ end
 
 // Generate waveform
 initial begin
-    $dumpfile("sim/waveforms/vcd/core_tb.vcd");
+    $dumpfile("sim/results/core_tb.vcd");
     $dumpvars(0, core_tb);
 end
 

@@ -48,8 +48,35 @@ loop_blt:
     j loop_blt
 end_loop_blt:
 
+
+
+    # BGE test equal case
+    li x1, 0
+    li x2, 32
+    li x3, 0
+loop_bge:
+    addi x1, x1, 1
+    bge x1, x2, end_loop_bge
+    j loop_bge
+end_loop_bge:
+
+
+
+    # BGE test great case
+    li x1, 0
+    li x2, 105
+    li x3, 0
+loop_bge2:
+    addi x1, x1, 10
+    bge x1, x2, end_loop_bge2
+    j loop_bge2
+end_loop_bge2:
+
+
+
     li x1, 1
     li x2, 2
     li x3, 3
     li x4, 4
     j .
+    

@@ -37,6 +37,7 @@ wire [31:0] regs_w_data;
 wire [31:0] alu_in1;
 wire [31:0] alu_in2;
 wire        branch_zero;
+wire [31:0] PC_skip;
 wire [31:0] next_PC;
 // Datapath Control Unit Signals
 wire [3:0] ctrl_alu_op;
@@ -81,7 +82,7 @@ memory ram (
     //outputs
 	.r_data(mem_out)
 );
-// TO DO: memories bootloader system 
+// TO DO: memory bootloader system 
 
 regs_file regs_file(
     //inputs
@@ -107,7 +108,7 @@ alu alu(
     .out(alu_out),             
     .zero(alu_zero),       
     .invalid_op(alu_invalid_op),     
-    .overflow(alu_overflow)     // overflow is ignored in the ISA but I want monitor it
+    .overflow(alu_overflow)     // overflow is ignored in the ISA
 );
 
 control_unit control_unit(
@@ -132,8 +133,10 @@ control_unit control_unit(
 );
 
 imm_gen imm_gen(
+    // inputs
     .instr(instruction[31:7]),
     .imm_op(ctrl_imm_op),
+    // output
     .imm(imm)
 );
 
@@ -152,8 +155,6 @@ assign PC_plus_4 = PC + 32'h0000_0004;
 
 assign PC_plus_imm = PC + imm;
 
-assign mem_out_maskered = mem_out & {{8{ctrl_mem_r_enb[3]}} , {8{ctrl_mem_r_enb[2]}} , {8{ctrl_mem_r_enb[1]}}, {8{ctrl_mem_r_enb[0]}}};
-
 // Muxes Output Logic
 assign regs_w_data = (ctrl_regs_w_data==2'b00) ? alu_out :
                      (ctrl_regs_w_data==2'b01) ? mem_out_maskered:
@@ -167,10 +168,16 @@ assign alu_in1 = ctrl_alu_in1 ?         PC :
 assign alu_in2 = ctrl_alu_in2 ?         imm :
                                 regs_r_data2;
 
+assign PC_skip =  ctrl_jump ? alu_out :
+                              PC_plus_imm;
+
 assign branch_zero = ctrl_branch_zero ? ~alu_zero :
                                         alu_zero;
 
-assign next_PC = ((branch_zero&&ctrl_branch)||ctrl_jump) ? PC_plus_imm :
+assign next_PC = ((branch_zero&&ctrl_branch)||ctrl_jump) ? PC_skip :
                                                            PC_plus_4;
+
+// Memory read logic
+assign mem_out_maskered = mem_out & {{8{ctrl_mem_r_enb[3]}} , {8{ctrl_mem_r_enb[2]}} , {8{ctrl_mem_r_enb[1]}}, {8{ctrl_mem_r_enb[0]}}};
 
 endmodule

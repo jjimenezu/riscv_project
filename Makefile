@@ -10,11 +10,13 @@ SRC ?= test0
 
 #
 RTL = $(wildcard rtl/*.v)
-RTL_OUT = sim/out/core.out
+RTL_OUT = sim/results/core.o
 #
 CORE_TB = sim/core_tb.v
-CORE_TB_WF = sim/waveforms/core_tb.gtkw
+CORE_TB_WF = sim/core_tb.gtkw
 ROM = sim/rom.mem
+RAM_OUT = sim/results/ram
+REGS_OUT = sim/results/regs_file
 #
 FIRMWARE = firmware/$(SRC)
 FIRMWARE_SRC = firmware/src/$(SRC)
@@ -25,9 +27,16 @@ compile_rtl:
 simulate:
 	@iverilog -o $(RTL_OUT) $(CORE_TB) $(RTL)
 	@vvp $(RTL_OUT)
+	@xxd -r -p $(RAM_OUT).mem $(RAM_OUT).bin
 
-show:
+show_wf:
 	@gtkwave $(CORE_TB_WF)
+
+show_ram:
+	@xxd $(RAM_OUT).bin
+
+show_regs:
+	cat $(REGS_OUT).mem
 
 compile_asm:
 	@riscv64-unknown-elf-as -march=rv32i -o $(FIRMWARE).o $(FIRMWARE_SRC).S
@@ -46,6 +55,6 @@ compile_asm:
 	@cp $(FIRMWARE).mem $(ROM)
 
 clean:
-	@rm -rf sim/out/* sim/waveforms/vcd/* firmware/*.*
+	@rm -rf sim/out/* sim/waveforms/vcd/* firmware/*.* sim/out*mem sim/*.bin
 
 

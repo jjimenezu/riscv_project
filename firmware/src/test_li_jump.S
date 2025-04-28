@@ -23,9 +23,9 @@ _start:
     li x18, 0x1000000005
     li x19, 0x19
     li x20, 0x20
-    li x21, 0x34574560
+    li x21, 0x34
     li x22, 0x22
-    li x23, 0x23452
+    li x23, 0x23
     li x24, 0x24
     li x25, 0x25
     li x26, 0x26
@@ -33,6 +33,29 @@ _start:
     li x28, 0x28
     li x29, 0x29
     li x30, 0x30
-    li x31, 0x31
+    auipc x25, 0x000FFF55
+
+    jal x31, jal_target
+jal_target2:
+    add  x3, x1, x2
+    and  x4, x1, x2
+    or   x5, x3, x4
+    add  x3, x1, x2
+    and  x4, x1, x2
+    or   x5, x3, x4
+
+    #
+    add  x1, x0, x0
+    addi x2, x0, 32
+    lui  x3, 0xFFFFF
+    addi x3, x3, 0x7FF
+    #
+    li x1, 0xF4
+    jalr x30, 0x8(x1)
+
+
+jal_target:
+    jal x29, jal_target2
+
 
     j .
