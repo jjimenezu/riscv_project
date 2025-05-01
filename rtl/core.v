@@ -9,7 +9,6 @@
 `define AUIPC_OP 7'b00101_11     // U-type: AUIPC: add upper immediate to PC
 `define J_OP     7'b11011_11     // J-type: jump and link
 
-
 module core #(
 	parameter integer ADDR_BITS = 10
 )(
@@ -17,10 +16,8 @@ module core #(
     input wire rst
 );
 
-
 ////____ Program Counter Register ____////
-reg [31:0] PC;
-
+reg [ADDR_BITS-1:0] PC;
 
 ////____ Internal Connections Wires ____////
 wire [31:0] instruction;
@@ -77,7 +74,7 @@ memory ram (
     .rst(rst), 
     .w_enb(ctrl_mem_w_enb),  
     .r_enb(ctrl_mem_r_enb[0]), 
-	.addr(alu_out),        
+	.addr(alu_out[ADDR_BITS-1:0]),        
     .w_data(regs_r_data2), 
     //outputs
 	.r_data(mem_out)
@@ -146,7 +143,7 @@ always @(posedge clk) begin
     if(rst) begin
         PC <= 0;
     end else begin
-        PC <= next_PC;
+        PC <= next_PC[ADDR_BITS-1:0];
     end
 end
 
@@ -181,3 +178,5 @@ assign next_PC = ((branch_zero&&ctrl_branch)||ctrl_jump) ? PC_skip :
 assign mem_out_maskered = mem_out & {{8{ctrl_mem_r_enb[3]}} , {8{ctrl_mem_r_enb[2]}} , {8{ctrl_mem_r_enb[1]}}, {8{ctrl_mem_r_enb[0]}}};
 
 endmodule
+
+// TODO: ajustar tamaño de buses de manera independiente para cantidad de bits en las direcciones de ram y rom

@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
-[*] Mon Apr 28 02:02:44 2025
+[*] Thu May  1 02:40:16 2025
 [*]
 [dumpfile] "/home/ejjimenezu/Repos/riscv_project/sim/results/core_tb.vcd"
-[dumpfile_mtime] "Mon Apr 28 01:55:47 2025"
-[dumpfile_size] 108053
+[dumpfile_mtime] "Thu May  1 02:39:15 2025"
+[dumpfile_size] 124184
 [savefile] "/home/ejjimenezu/Repos/riscv_project/sim/core_tb.gtkw"
-[timestart] 555
-[size] 1920 1009
-[pos] 0 23
-*-6.000000 766 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 1920 1032
+[pos] 1920 0
+*-9.599999 861 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] core_tb.
 [treeopen] core_tb.core.
 [sst_width] 209
 [signals_width] 290
 [sst_expanded] 1
-[sst_vpaned_height] 298
+[sst_vpaned_height] 306
 @200
 -tb
 @28
@@ -25,11 +25,8 @@ core_tb.core.rst
 -
 -CORE
 @22
-core_tb.core.PC[31:0]
 core_tb.core.instruction[31:0]
-@23
 core_tb.core.imm[31:0]
-@22
 core_tb.core.regs_r_data1[31:0]
 core_tb.core.regs_r_data2[31:0]
 core_tb.core.alu_out[31:0]
@@ -80,6 +77,18 @@ core_tb.core.control_unit.alu_in1
 core_tb.core.control_unit.alu_in2
 @200
 -
+-RAM
+@29
+core_tb.core.ram.clk
+@22
+core_tb.core.ram.addr[9:0]
+@820
+core_tb.core.ram.w_data[31:0]
+@28
+core_tb.core.ram.r_enb
+@22
+core_tb.core.ram.w_enb[3:0]
+@200
 -
 [pattern_trace] 1
 [pattern_trace] 0

@@ -10,24 +10,21 @@
 module core_tb();
 
 parameter integer ADDR_BITS = 10;
-parameter N = 32;  // Regs width
-parameter M = 32;   // # Regs
+parameter N = 32;  // Each Reg width
+parameter M = 32;  // Number of Regs
 
 //DUT interfae
 reg clk,rst;
 
 reg [7:0] in_rom [0:2**ADDR_BITS-1];
-reg [7:0] out_data_mem [0:2**ADDR_BITS-1];
-reg [N-1:0] out_registers [0:M-1];
+reg [7:0] in_ram [0:2**ADDR_BITS-1];
 
-
-reg [31:0] i;
 integer regs_file;
 integer ram_file;
 
+reg [31:0] i;
+
 initial while(1) #10 clk = !clk;
-
-
 
 core core(
     .clk(clk),
@@ -43,14 +40,20 @@ initial begin
     #22;
     rst = 0;
 
-    // Load instruction memory
+    // Load instructions
     $readmemh("sim/rom.mem", in_rom);
     for(i = 0; i<`ROM_SIZE; i = i+1) begin
         core.rom.mem[i] =  in_rom[i];
     end
 
+    // Load data 
+    $readmemh("sim/ram.mem", in_ram);
+    for(i = 0; i<`RAM_SIZE; i = i+1) begin
+        core.ram.mem[i] =  in_ram[i];
+    end
+
     // Execution
-    #5000;
+    #20000;
 
     // Save Regs File state
     regs_file = $fopen("sim/results/regs_file.mem", "w");
@@ -66,17 +69,7 @@ initial begin
     end
     $fclose(ram_file);
 
-    // ram_file = $fopen("sim/out_ram.mem", "w");
-    // $fwrite(ram_file, "\t\t\t+0\t+1\t+2\t+3",);
-    // for (i = 0; i < `RAM_SIZE; i = i+4) begin
-    //     $fwrite(ram_file, "\n%h\t", {i[31:2],2'b00});
-    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b00]);
-    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b01]);
-    //     $fwrite(ram_file, "%h\t",  core.ram.mem[i+2'b10]);
-    //     $fwrite(ram_file, "%h",  core.ram.mem[i+2'b11]);
-    // end
-    // $fclose(ram_file);
-
+    //end of simulation
     $finish();
 
 end

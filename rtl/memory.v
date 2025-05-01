@@ -9,7 +9,8 @@ module memory #(
 	input wire rst,
 	input wire [3:0] w_enb,
 	input wire       r_enb,
-	input wire [31:0] addr, w_data,
+	input wire [ADDR_BITS-1:0] addr, 
+	input wire [31:0] w_data,
 	output reg [31:0] r_data
 );
 
